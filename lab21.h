@@ -7,6 +7,8 @@
 
 using namespace std;
 
+int hpm,a,d;
+
 class Equipment{
 	int hpmax;
 	int atk;
@@ -15,6 +17,21 @@ class Equipment{
 		Equipment(int,int,int);
 		vector<int> getStat();			
 };
+
+Equipment::Equipment(int Hpmax, int Atk, int Def){
+hpmax = Hpmax;
+atk = Atk;
+def = Def;	
+}
+vector<int> Equipment::getStat(){
+	vector<int> stt ;
+	stt.push_back(hpmax);
+	stt.push_back(atk);
+	stt.push_back(def);
+	return stt ;
+}
+
+
 
 class Unit{
 		string name;
@@ -52,9 +69,26 @@ Unit::Unit(string t,string n){
 		atk = rand()%5+25;
 		def = rand()%3+5;
 	}
-	hp = hpmax;	
+	hpm = hpmax;	
+	a = atk;
+	d  = def;
+	hp = hpmax;
 	guard_on = false;
+	dodge_on = false;
 	equipment = NULL;
+}
+
+void Unit::equip(Equipment *e){
+hpmax = hpm;	
+atk = a;
+def  = d ;
+vector<int> eq = e->getStat();
+hpmax += eq[0];
+atk += eq[1];
+def += eq[2];
+	
+	if(hp> hpmax) hp = hpmax;
+
 }
 
 void Unit::showStatus(){
@@ -74,6 +108,7 @@ void Unit::showStatus(){
 
 void Unit::newTurn(){
 	guard_on = false; 
+	dodge_on = false;
 }
 
 int Unit::beAttacked(int oppatk){
@@ -81,6 +116,10 @@ int Unit::beAttacked(int oppatk){
 	if(oppatk > def){
 		dmg = oppatk-def;	
 		if(guard_on) dmg = dmg/3;
+		else if(dodge_on){
+			int i = rand()%2;
+			if(i == 0) dmg = 0;
+		    else  dmg *= 2; }
 	}	
 	hp -= dmg;
 	if(hp <= 0){hp = 0;}
@@ -92,12 +131,20 @@ int Unit::attack(Unit &opp){
 	return opp.beAttacked(atk);
 }
 
+int Unit:: ultimateAttack(Unit &opp){
+return opp.beAttacked(2*atk);
+}
+
+
 int Unit::heal(){
 	int h = rand()%21 + 10;
 	if(hp + h > hpmax) h = hpmax - hp;
 	hp = hp + h;
 	return h;
 }
+
+void Unit::dodge(){
+		dodge_on = true;}
 
 void Unit::guard(){
 	guard_on = true;
@@ -107,6 +154,10 @@ bool Unit::isDead(){
 	if(hp <= 0) return true;
 	else return false;
 }
+
+
+
+
 
 void drawScene(char p_action,int p,char m_action,int m){
 	cout << "                                                       \n";
